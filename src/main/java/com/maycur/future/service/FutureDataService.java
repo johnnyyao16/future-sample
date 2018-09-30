@@ -9,10 +9,14 @@ import java.util.concurrent.TimeUnit;
 public class FutureDataService {
     private static final Logger logger = LoggerFactory.getLogger(FutureDataService.class);
 
-    public FutureData getFutureData() {
+    private FutureData getFutureData() {
         FutureData futureData = new FutureData();
         new Thread(() -> {
-            futureData.setData("Future data is ready!");
+            try {
+                futureData.setData("Future data is ready!");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }).start();
         return futureData;
     }
@@ -29,4 +33,5 @@ public class FutureDataService {
         String result2 = futureData2.getData();
         logger.info("Future data 2 is ready, get result {}", result2);
     }
+
 }

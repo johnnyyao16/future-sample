@@ -7,36 +7,32 @@ import java.util.concurrent.TimeUnit;
 
 public class FutureData {
     private static final Logger logger = LoggerFactory.getLogger(FutureData.class);
-    private volatile boolean isCompleted = false;
-    private Object lock = new Object();
+    private boolean isCompleted = false;
 
     private String data;
 
-    public String getData() throws InterruptedException {
-        synchronized (lock) {
-            while (true) {
-                if (isCompleted) {
-                    logger.info("Set data is completed, return data!");
-                    return data;
-                } else {
-                    logger.info("Set data is not completed, wait!");
-                    lock.wait();
-                }
+    public synchronized String getData() throws InterruptedException {
+        while (true) {
+            if (isCompleted) {
+                logger.info("Set data is completed, return data!");
+                return data;
+            } else {
+                logger.info("Set data is not completed, wait!");
+                wait();
             }
+
         }
     }
 
-    public void setData(String data) {
-        synchronized (lock) {
-            // 模拟20s的延迟
-            try {
-                TimeUnit.SECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            this.data = data;
-            isCompleted = true;
-            lock.notify();
+    public synchronized void setData(String data) throws InterruptedException {
+        if (isCompleted) {
+            return;
         }
+        // 模拟20s的延迟
+        TimeUnit.SECONDS.sleep(10);
+        this.data = data;
+        isCompleted = true;
+        notifyAll();
     }
+
 }
